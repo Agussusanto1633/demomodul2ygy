@@ -1,0 +1,82 @@
+[
+  {
+    "id": "1",
+    "name": "Repaint Motor",
+    "price": "Rp 500.000/unit",
+    "description": "Pengecatan ulang motor dengan hasil profesional dan tahan lama menggunakan cat berkualitas tinggi. Termasuk poles dan finishing premium.",
+    "icon": "format_paint",
+    "colorHex": "#2196F3"
+  },
+  {
+    "id": "2",
+    "name": "Repaint Helm",
+    "price": "Rp 150.000/unit",
+    "description": "Pengecatan helm custom sesuai keinginan Anda dengan berbagai pilihan warna dan desain. Menggunakan cat khusus helm yang tahan lama.",
+    "icon": "sports_motorsports",
+    "colorHex": "#4CAF50"
+  },
+  {
+    "id": "3",
+    "name": "Service Rutin",
+    "price": "Rp 200.000/unit",
+    "description": "Perawatan berkala untuk performa motor optimal termasuk pengecekan semua komponen penting. Gratis konsultasi teknisi berpengalaman.",
+    "icon": "build",
+    "colorHex": "#F44336"
+  },
+  {
+    "id": "4",
+    "name": "Ganti Oli",
+    "price": "Rp 80.000/unit",
+    "description": "Penggantian oli mesin dengan produk berkualitas tinggi untuk menjaga performa mesin. Termasuk filter oli dan pembersihan mesin.",
+    "icon": "oil_barrel",
+    "colorHex": "#FF9800"
+  },
+  {
+    "id": "5",
+    "name": "Tune Up",
+    "price": "Rp 300.000/unit",
+    "description": "Penyetelan mesin untuk performa maksimal dengan teknisi berpengalaman. Meliputi pembersihan karburator, penyetelan klep, dan setting timing.",
+    "icon": "settings_suggest",
+    "colorHex": "#9C27B0"
+  },
+  {
+    "id": "6",
+    "name": "Ganti Ban",
+    "price": "Rp 250.000/unit",
+    "description": "Penggantian ban motor dengan berbagai merek pilihan dan ukuran sesuai kebutuhan. Garansi ban 1 tahun dengan balancing gratis.",
+    "icon": "trip_origin",
+    "colorHex": "#009688"
+  },
+  {
+    "id": "7",
+    "name": "Cuci Motor",
+    "price": "Rp 20.000/unit",
+    "description": "Pencucian motor menyeluruh hingga bersih mengkilap dengan peralatan modern. Termasuk pembersihan mesin dan semir ban.",
+    "icon": "water_drop",
+    "colorHex": "#3F51B5"
+  },
+  {
+    "id": "8",
+    "name": "Ganti Aki",
+    "price": "Rp 180.000/unit",
+    "description": "Penggantian aki motor dengan garansi resmi dan berbagai merek terpercaya. Gratis pengecekan sistem kelistrikan motor.",
+    "icon": "battery_charging_full",
+    "colorHex": "#FFC107"
+  },
+  {
+    "id": "9",
+    "name": "Ganti Kampas Rem",
+    "price": "Rp 120.000/unit",
+    "description": "Penggantian kampas rem depan dan belakang untuk keamanan berkendara maksimal. Menggunakan kampas rem original berkualitas tinggi.",
+    "icon": "speed",
+    "colorHex": "#E91E63"
+  },
+  {
+    "id": "10",
+    "name": "Setting CVT",
+    "price": "Rp 400.000/unit",
+    "description": "Setting ulang sistem CVT untuk performa dan efisiensi bahan bakar optimal. Termasuk pembersihan dan penggantian roller CVT.",
+    "icon": "settings",
+    "colorHex": "#00BCD4"
+  }
+]
