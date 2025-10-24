@@ -480,7 +480,7 @@ Terima kasih kepada semua yang telah berkontribusi pada proyek ini!
 
 ---
 
-## 📞 Contact & Support
+## 📞 Mobile Developer
 
 - 📧 Email: agussusanto@webmail.umm.ac.id
 - 💬 Discord: [Join my server](https://discord.gg/fuG9ARe5)
