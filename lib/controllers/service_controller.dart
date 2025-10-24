@@ -1,279 +1,215 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../services/api_service_http.dart';
+import '../services/api_service_dio.dart';
 import '../models/service_model.dart';
-import '../services/api_service.dart';
 
 class ServiceController extends GetxController {
-  // ============================================
-  // DEPENDENCIES
-  // ============================================
-  final ApiService _apiService = ApiService();
-
-  // ============================================
-  // OBSERVABLE VARIABLES
-  // ============================================
-  
-  // List of services
-  var services = <ServiceModel>[].obs;
-  
-  // Loading state
+  // Observable variables
   var isLoading = false.obs;
-  
-  // Error message
+  var services = <ServiceModel>[].obs;
+  var selectedService = Rxn<ServiceModel>();
   var errorMessage = ''.obs;
-  
-  // Selected index (untuk animasi selection)
-  var selectedIndex = Rxn<int>();
-  
-  // Animation states
-  var isPulsing = false.obs;
-  var isRotating = false.obs;
-  
-  // Item spacing
-  var itemSpacing = 15.0.obs;
 
-  // ============================================
-  // LIFECYCLE
-  // ============================================
-  
+  // API Mode: true = Dio, false = HTTP
+  var useDio = false.obs;
+
+  // Instance untuk kedua service
+  final _httpService = ApiService();
+  final _dioService = ApiServiceDio();
+
   @override
   void onInit() {
     super.onInit();
-    print('🎮 ServiceController initialized');
+    // Auto load services on init
+    fetchAllServices();
+  }
+
+  // ========== TOGGLE API ==========
+  void toggleApiMode() {
+    useDio.value = !useDio.value;
     
-    // Fetch services saat controller pertama kali diinit
-    fetchServices();
+    // Clear existing services
+    services.clear();
+    
+    Get.snackbar(
+      'API Switched',
+      useDio.value ? '🟢 Using DIO Package - Loading data...' : '🔵 Using HTTP Package - Loading data...',
+      snackPosition: SnackPosition.BOTTOM,
+      duration: const Duration(seconds: 2),
+      backgroundColor: useDio.value ? Colors.green : Colors.blue,
+      colorText: Colors.white,
+    );
+    
+    // Auto reload data with new API
+    fetchAllServices();
   }
 
-  @override
-  void onClose() {
-    print('🎮 ServiceController closed');
-    super.onClose();
-  }
-
-  // ============================================
-  // API METHODS
-  // ============================================
-
-  /// Fetch all services dari API/Local JSON
-  Future<void> fetchServices() async {
+  // ========== GET ALL SERVICES ==========
+  Future<void> fetchAllServices() async {
     try {
-      print('\n🔄 Fetching services...');
-      
-      // Set loading state
-      isLoading(true);
-      errorMessage('');
-      
-      // Call API service
-      final result = await _apiService.getServices();
-      
-      // Update services list
-      services.value = result;
-      
-      print('✅ Fetched ${services.length} services');
-      
-      // Check if empty
-      if (services.isEmpty) {
-        errorMessage('Tidak ada layanan tersedia');
+      isLoading.value = true;
+      errorMessage.value = '';
+
+      List<ServiceModel> result;
+
+      if (useDio.value) {
+        print('🚀 Fetching with DIO package');
+        result = await _dioService.getServices();
+      } else {
+        print('🔵 Fetching with HTTP package');
+        result = await _httpService.getServices();
       }
-      
-    } catch (e) {
-      // Handle error
-      print('❌ Error fetching services: $e');
-      errorMessage('Gagal memuat data: ${e.toString()}');
-      
-    } finally {
-      // Always stop loading
-      isLoading(false);
-    }
-  }
 
-  /// Refresh services (pull to refresh)
-  Future<void> refreshServices() async {
-    print('🔄 Refreshing services...');
-    await fetchServices();
-  }
+      services.value = result;
 
-  /// Get service by ID
-  Future<ServiceModel?> getServiceById(String id) async {
-    try {
-      return await _apiService.getServiceById(id);
+      Get.snackbar(
+        'Success',
+        'Loaded ${result.length} services from ${useDio.value ? "DIO 🚀" : "HTTP 🔵"}',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+        backgroundColor: useDio.value ? Colors.green : Colors.blue,
+        colorText: Colors.white,
+      );
     } catch (e) {
-      print('❌ Error getting service by ID: $e');
+      errorMessage.value = e.toString();
       Get.snackbar(
         'Error',
-        'Gagal mengambil data layanan',
-        snackPosition: SnackPosition.BOTTOM,
+        'Failed to load data: $e',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
-      return null;
+    } finally {
+      isLoading.value = false;
     }
   }
 
-  /// Create new service (hanya jika pakai online API)
-  Future<bool> createService(ServiceModel service) async {
+  // ========== GET SERVICE BY ID ==========
+  Future<void> fetchServiceById(String id) async {
     try {
-      isLoading(true);
-      
-      final created = await _apiService.createService(service);
-      
-      // Add to list
-      services.add(created);
-      
+      isLoading.value = true;
+
+      ServiceModel result;
+
+      if (useDio.value) {
+        result = await _dioService.getServiceById(id);
+      } else {
+        result = await _httpService.getServiceById(id);
+      }
+
+      selectedService.value = result;
+
       Get.snackbar(
-        'Berhasil',
-        'Layanan baru berhasil ditambahkan',
+        'Success',
+        'Service loaded: ${result.title}',
         snackPosition: SnackPosition.BOTTOM,
       );
-      
-      return true;
-      
     } catch (e) {
-      print('❌ Error creating service: $e');
       Get.snackbar(
         'Error',
         e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
-      return false;
-      
     } finally {
-      isLoading(false);
+      isLoading.value = false;
     }
   }
 
-  /// Update service (hanya jika pakai online API)
-  Future<bool> updateService(String id, ServiceModel service) async {
+  // ========== CREATE SERVICE ==========
+  Future<void> createService(ServiceModel service) async {
     try {
-      isLoading(true);
-      
-      final updated = await _apiService.updateService(id, service);
-      
+      isLoading.value = true;
+
+      ServiceModel result;
+
+      if (useDio.value) {
+        result = await _dioService.createService(service);
+      } else {
+        result = await _httpService.createService(service);
+      }
+
+      // Add to list
+      services.add(result);
+
+      Get.snackbar(
+        'Success',
+        'Service created: ${result.title}',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        e.toString(),
+        snackPosition: SnackPosition.TOP,
+      );
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  // ========== UPDATE SERVICE ==========
+  Future<void> updateService(String id, ServiceModel service) async {
+    try {
+      isLoading.value = true;
+
+      ServiceModel result;
+
+      if (useDio.value) {
+        result = await _dioService.updateService(id, service);
+      } else {
+        result = await _httpService.updateService(id, service);
+      }
+
       // Update in list
       final index = services.indexWhere((s) => s.id == id);
       if (index != -1) {
-        services[index] = updated;
+        services[index] = result;
       }
-      
+
       Get.snackbar(
-        'Berhasil',
-        'Layanan berhasil diupdate',
+        'Success',
+        'Service updated: ${result.title}',
         snackPosition: SnackPosition.BOTTOM,
       );
-      
-      return true;
-      
     } catch (e) {
-      print('❌ Error updating service: $e');
       Get.snackbar(
         'Error',
         e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
-      return false;
-      
     } finally {
-      isLoading(false);
+      isLoading.value = false;
     }
   }
 
-  /// Delete service (hanya jika pakai online API)
-  Future<bool> deleteService(String id) async {
+  // ========== DELETE SERVICE ==========
+  Future<void> deleteService(String id) async {
     try {
-      isLoading(true);
-      
-      await _apiService.deleteService(id);
-      
+      isLoading.value = true;
+
+      if (useDio.value) {
+        await _dioService.deleteService(id);
+      } else {
+        await _httpService.deleteService(id);
+      }
+
       // Remove from list
-      services.removeWhere((s) => s.id == id);
-      
+      services.removeWhere((service) => service.id == id);
+
       Get.snackbar(
-        'Berhasil',
-        'Layanan berhasil dihapus',
+        'Success',
+        'Service deleted',
         snackPosition: SnackPosition.BOTTOM,
       );
-      
-      return true;
-      
     } catch (e) {
-      print('❌ Error deleting service: $e');
       Get.snackbar(
         'Error',
         e.toString(),
-        snackPosition: SnackPosition.BOTTOM,
+        snackPosition: SnackPosition.TOP,
       );
-      return false;
-      
     } finally {
-      isLoading(false);
+      isLoading.value = false;
     }
-  }
-
-  // ============================================
-  // UI METHODS
-  // ============================================
-
-  /// Toggle pulse animation
-  void togglePulse() {
-    isPulsing.value = !isPulsing.value;
-    print('💫 Pulse animation: ${isPulsing.value ? "ON" : "OFF"}');
-  }
-
-  /// Toggle rotate animation
-  void toggleRotate() {
-    isRotating.value = !isRotating.value;
-    print('🔄 Rotate animation: ${isRotating.value ? "ON" : "OFF"}');
-  }
-
-  /// Update item spacing
-  void updateItemSpacing(double value) {
-    itemSpacing.value = value;
-  }
-
-  /// Select service by index
-  void selectService(int index) {
-    if (selectedIndex.value == index) {
-      selectedIndex.value = null;
-      print('❌ Deselected service at index $index');
-    } else {
-      selectedIndex.value = index;
-      print('✅ Selected service at index $index: ${services[index].name}');
-    }
-  }
-
-  // ============================================
-  // HELPER METHODS
-  // ============================================
-
-  /// Get service by index (safe)
-  ServiceModel? getServiceByIndex(int index) {
-    if (index >= 0 && index < services.length) {
-      return services[index];
-    }
-    return null;
-  }
-
-  /// Check if services is empty
-  bool get isEmpty => services.isEmpty;
-
-  /// Get total services count
-  int get totalServices => services.length;
-
-  /// Search services by name
-  List<ServiceModel> searchServices(String query) {
-    if (query.isEmpty) return services;
-    
-    return services.where((service) {
-      return service.name.toLowerCase().contains(query.toLowerCase()) ||
-             service.description.toLowerCase().contains(query.toLowerCase());
-    }).toList();
-  }
-
-  /// Filter services by price range
-  List<ServiceModel> filterByPriceRange(double min, double max) {
-    return services.where((service) {
-      // Extract number from price string (e.g., "Rp 500.000/unit" → 500000)
-      final priceString = service.price.replaceAll(RegExp(r'[^0-9]'), '');
-      final price = double.tryParse(priceString) ?? 0;
-      return price >= min && price <= max;
-    }).toList();
   }
 }

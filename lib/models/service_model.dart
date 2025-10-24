@@ -2,52 +2,125 @@ import 'package:flutter/material.dart';
 
 class ServiceModel {
   final String id;
-  final String name;
-  final String price;
+  final String title;
   final String description;
+  final String price;
   final String icon;
-  final String colorHex;
+  final String color;
 
   ServiceModel({
     required this.id,
-    required this.name,
-    required this.price,
+    required this.title,
     required this.description,
+    required this.price,
     required this.icon,
-    required this.colorHex,
+    required this.color,
   });
 
-  // ============================================
-  // FROM JSON: Parsing dari JSON → Object
-  // ============================================
+  // Convert JSON to Object
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
     return ServiceModel(
-      id: json['id']?.toString() ?? '',
-      name: json['name'] ?? '',
-      price: json['price'] ?? '',
-      description: json['description'] ?? '',
+      id: json['id']?.toString() ?? '0',
+      title: json['title'] ?? json['name'] ?? '',
+      description: json['description'] ?? json['body'] ?? '',
+      price: json['price'] ?? 'Rp 0',
       icon: json['icon'] ?? 'build',
-      colorHex: json['colorHex'] ?? '#2196F3',
+      color: json['color'] ?? 'blue',
+    );
+  }
+
+  // Convert Object to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'price': price,
+      'icon': icon,
+      'color': color,
+    };
+  }
+
+  // CopyWith method
+  ServiceModel copyWith({
+    String? id,
+    String? title,
+    String? description,
+    String? price,
+    String? icon,
+    String? color,
+  }) {
+    return ServiceModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      price: price ?? this.price,
+      icon: icon ?? this.icon,
+      color: color ?? this.color,
     );
   }
 
   // ============================================
-  // TO JSON: Convert Object → JSON
+  // HELPER METHODS - Convert string to Color & IconData
   // ============================================
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'price': price,
-      'description': description,
-      'icon': icon,
-      'colorHex': colorHex,
-    };
+
+  /// Get Color from color string
+  Color getColor() {
+    switch (color.toLowerCase()) {
+      case 'blue':
+        return Colors.blue;
+      case 'green':
+        return Colors.green;
+      case 'red':
+        return Colors.red;
+      case 'orange':
+        return Colors.orange;
+      case 'purple':
+        return Colors.purple;
+      case 'teal':
+        return Colors.teal;
+      case 'indigo':
+        return Colors.indigo;
+      case 'amber':
+        return Colors.amber;
+      case 'pink':
+        return Colors.pink;
+      case 'cyan':
+        return Colors.cyan;
+      default:
+        return Colors.blue; // default color
+    }
   }
 
-  // ============================================
-  // HELPER METHOD: Get IconData dari string
-  // ============================================
+  /// Get background Color (lighter shade)
+  Color getBackgroundColor() {
+    switch (color.toLowerCase()) {
+      case 'blue':
+        return Colors.blue.shade50;
+      case 'green':
+        return Colors.green.shade50;
+      case 'red':
+        return Colors.red.shade50;
+      case 'orange':
+        return Colors.orange.shade50;
+      case 'purple':
+        return Colors.purple.shade50;
+      case 'teal':
+        return Colors.teal.shade50;
+      case 'indigo':
+        return Colors.indigo.shade50;
+      case 'amber':
+        return Colors.amber.shade50;
+      case 'pink':
+        return Colors.pink.shade50;
+      case 'cyan':
+        return Colors.cyan.shade50;
+      default:
+        return Colors.blue.shade50;
+    }
+  }
+
+  /// Get IconData from icon string
   IconData getIcon() {
     switch (icon.toLowerCase()) {
       case 'format_paint':
@@ -66,38 +139,16 @@ class ServiceModel {
         return Icons.water_drop;
       case 'battery_charging_full':
         return Icons.battery_charging_full;
-      case 'speed':
-        return Icons.speed;
-      case 'settings':
-        return Icons.settings;
+      case 'construction':
+        return Icons.construction;
+      case 'car_repair':
+        return Icons.car_repair;
       default:
-        return Icons.build;
+        return Icons.build; // default icon
     }
   }
 
-  // ============================================
-  // HELPER METHOD: Get Color dari hex string
-  // ============================================
-  Color getColor() {
-    try {
-      return Color(int.parse(colorHex.replaceFirst('#', '0xFF')));
-    } catch (e) {
-      return Colors.blue;
-    }
-  }
-
-  // ============================================
-  // HELPER METHOD: Get background color
-  // ============================================
-  Color getBackgroundColor() {
-    return getColor().withOpacity(0.1);
-  }
-
-  // ============================================
-  // HELPER METHOD: Print untuk debugging
-  // ============================================
-  @override
-  String toString() {
-    return 'ServiceModel(id: $id, name: $name, price: $price)';
-  }
+  // Alias for compatibility
+  String get name => title;
+  String get body => description;
 }

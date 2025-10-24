@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../models/service_model.dart';
 
 class ServiceDetailPage extends StatelessWidget {
-  final ServiceModel service;
+  final Map<String, dynamic> service;
   final int heroTag;
 
   const ServiceDetailPage({
@@ -12,13 +11,26 @@ class ServiceDetailPage extends StatelessWidget {
     required this.heroTag,
   });
 
+  // Helper methods untuk get data dari Map
+  Color _getColor() {
+    return service['iconColor'] ?? Colors.blue;
+  }
+
+  Color _getBackgroundColor() {
+    return service['color'] ?? Colors.blue.shade50;
+  }
+
+  IconData _getIcon() {
+    return service['icon'] ?? Icons.build;
+  }
+
   @override
   Widget build(BuildContext context) {
     final orientation = MediaQuery.of(context).orientation;
     final isLandscape = orientation == Orientation.landscape;
 
     return Scaffold(
-      backgroundColor: service.getColor(),
+      backgroundColor: _getColor(),
       body: SafeArea(
         child: isLandscape
             ? _buildLandscapeLayout(context)
@@ -76,9 +88,9 @@ class ServiceDetailPage extends StatelessWidget {
               ],
             ),
             child: Icon(
-              service.getIcon(),
+              _getIcon(),
               size: 80,
-              color: service.getColor(),
+              color: _getColor(),
             ),
           ),
         ),
@@ -102,11 +114,11 @@ class ServiceDetailPage extends StatelessWidget {
                   children: [
                     // Service Name
                     Text(
-                      service.name,
+                      service['name'] ?? 'Service',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
-                        color: service.getColor(),
+                        color: _getColor(),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -118,15 +130,15 @@ class ServiceDetailPage extends StatelessWidget {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: service.getBackgroundColor(),
+                        color: _getBackgroundColor(),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        service.price,
+                        service['price'] ?? 'Rp 0',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w600,
-                          color: service.getColor(),
+                          color: _getColor(),
                         ),
                       ),
                     ),
@@ -143,7 +155,7 @@ class ServiceDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      service.description,
+                      service['description'] ?? 'Tidak ada deskripsi',
                       style: const TextStyle(
                         fontSize: 16,
                         color: Colors.black54,
@@ -165,22 +177,22 @@ class ServiceDetailPage extends StatelessWidget {
                     _buildFeature(
                       Icons.check_circle,
                       'Garansi 30 hari',
-                      service.getColor(),
+                      _getColor(),
                     ),
                     _buildFeature(
                       Icons.check_circle,
                       'Teknisi berpengalaman',
-                      service.getColor(),
+                      _getColor(),
                     ),
                     _buildFeature(
                       Icons.check_circle,
                       'Harga terjangkau',
-                      service.getColor(),
+                      _getColor(),
                     ),
                     _buildFeature(
                       Icons.check_circle,
                       'Pengerjaan cepat',
-                      service.getColor(),
+                      _getColor(),
                     ),
                     const SizedBox(height: 30),
 
@@ -191,8 +203,8 @@ class ServiceDetailPage extends StatelessWidget {
                         onPressed: () {
                           Get.snackbar(
                             'Berhasil',
-                            'Memesan ${service.name}...',
-                            backgroundColor: service.getColor(),
+                            'Memesan ${service['name']}...',
+                            backgroundColor: _getColor(),
                             colorText: Colors.white,
                             snackPosition: SnackPosition.BOTTOM,
                             margin: const EdgeInsets.all(16),
@@ -204,7 +216,7 @@ class ServiceDetailPage extends StatelessWidget {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: service.getColor(),
+                          backgroundColor: _getColor(),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(15),
@@ -240,7 +252,7 @@ class ServiceDetailPage extends StatelessWidget {
         // Left Side - Header & Hero
         Container(
           width: MediaQuery.of(context).size.width * 0.35,
-          color: service.getColor(),
+          color: _getColor(),
           child: Column(
             children: [
               // Header
@@ -291,9 +303,9 @@ class ServiceDetailPage extends StatelessWidget {
                     ],
                   ),
                   child: Icon(
-                    service.getIcon(),
+                    _getIcon(),
                     size: 50,
-                    color: service.getColor(),
+                    color: _getColor(),
                   ),
                 ),
               ),
@@ -320,11 +332,11 @@ class ServiceDetailPage extends StatelessWidget {
                   children: [
                     // Service Name
                     Text(
-                      service.name,
+                      service['name'] ?? 'Service',
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: service.getColor(),
+                        color: _getColor(),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -336,15 +348,15 @@ class ServiceDetailPage extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: service.getBackgroundColor(),
+                        color: _getBackgroundColor(),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Text(
-                        service.price,
+                        service['price'] ?? 'Rp 0',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
-                          color: service.getColor(),
+                          color: _getColor(),
                         ),
                       ),
                     ),
@@ -361,7 +373,7 @@ class ServiceDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      service.description,
+                      service['description'] ?? 'Tidak ada deskripsi',
                       style: const TextStyle(
                         fontSize: 13,
                         color: Colors.black54,
@@ -383,22 +395,22 @@ class ServiceDetailPage extends StatelessWidget {
                     _buildFeature(
                       Icons.check_circle,
                       'Garansi 30 hari',
-                      service.getColor(),
+                      _getColor(),
                     ),
                     _buildFeature(
                       Icons.check_circle,
                       'Teknisi berpengalaman',
-                      service.getColor(),
+                      _getColor(),
                     ),
                     _buildFeature(
                       Icons.check_circle,
                       'Harga terjangkau',
-                      service.getColor(),
+                      _getColor(),
                     ),
                     _buildFeature(
                       Icons.check_circle,
                       'Pengerjaan cepat',
-                      service.getColor(),
+                      _getColor(),
                     ),
                     const SizedBox(height: 20),
 
@@ -409,8 +421,8 @@ class ServiceDetailPage extends StatelessWidget {
                         onPressed: () {
                           Get.snackbar(
                             'Berhasil',
-                            'Memesan ${service.name}...',
-                            backgroundColor: service.getColor(),
+                            'Memesan ${service['name']}...',
+                            backgroundColor: _getColor(),
                             colorText: Colors.white,
                             snackPosition: SnackPosition.BOTTOM,
                             margin: const EdgeInsets.all(16),
@@ -422,7 +434,7 @@ class ServiceDetailPage extends StatelessWidget {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: service.getColor(),
+                          backgroundColor: _getColor(),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
