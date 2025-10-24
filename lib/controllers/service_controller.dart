@@ -55,7 +55,7 @@ class ServiceController extends GetxController {
 
       if (useDio.value) {
         print('🚀 Fetching with DIO package');
-        result = await _dioService.getServices();
+        result = await _dioService.getService();
       } else {
         print('🔵 Fetching with HTTP package');
         result = await _httpService.getServices();

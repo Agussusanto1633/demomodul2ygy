@@ -78,13 +78,14 @@
 
 | Login Screen | Home Screen | Service Detail |
 |:------------:|:-----------:|:--------------:|
-| ![Login](https://via.placeholder.com/250x450/1E3A5F/FFFFFF?text=Login+Page) | ![Home](https://via.placeholder.com/250x450/455A64/FFFFFF?text=Home+Page) | ![Detail](https://via.placeholder.com/250x450/2196F3/FFFFFF?text=Detail+Page) |
+| <img src="assets/screenshots/login.png" alt="Login" width="250"> | <img src="assets/screenshots/home.png" alt="Home" width="250"> | <img src="assets/screenshots/detail.png" alt="Detail" width="250"> |
 
 | API Toggle | CRUD Test | Settings |
 |:----------:|:---------:|:--------:|
-| ![Toggle](https://via.placeholder.com/250x450/4CAF50/FFFFFF?text=API+Toggle) | ![CRUD](https://via.placeholder.com/250x450/FF9800/FFFFFF?text=CRUD+Test) | ![Settings](https://via.placeholder.com/250x450/9C27B0/FFFFFF?text=Settings) |
+| <img src="assets/screenshots/toggle.png" alt="Toggle" width="250"> | <img src="assets/screenshots/crud.png" alt="CRUD" width="250"> | <img src="assets/screenshots/pengaturan.png" alt="Settings" width="250"> |
 
 </div>
+```
 
 ### 🎥 Video Demo
 
@@ -275,7 +276,8 @@ corner_garage/
 │   │   └── icon.png                     # App Icon
 │   └── data/
 │       └── sample.json                  # Local JSON Data
-│
+│   └── screenshots/
+        └── fotobanyak.png               # Dokumentasi
 ├── test/
 │   └── widget_test.dart                 # Unit Tests
 │
@@ -466,14 +468,14 @@ in the Software without restriction...
 
 ### Developer
 
-- **Your Name** - *Full Stack Flutter Developer* - [@username](https://github.com/username)
+- **Corner Garage** - *Full Stack Flutter Developer* - [@Corner Garage](https://github.com/Corner_Garage)
 
 ### Contributors
 
 Terima kasih kepada semua yang telah berkontribusi pada proyek ini!
 
 <a href="https://github.com/username/corner-garage/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=username/corner-garage" />
+  <img src="assets/images/icon.png" />
 </a>
 
 ---

@@ -64,6 +64,12 @@ flutter:
   assets:
     - assets/data/sample.json
     - assets/images/icon.png
+    - assets/screenshots/crud.png
+    - assets/screenshots/detail.png
+    - assets/screenshots/home.png
+    - assets/screenshots/login.png
+    - assets/screenshots/pengaturan.png
+    - assets/screenshots/toggle.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

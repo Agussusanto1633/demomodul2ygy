@@ -111,7 +111,7 @@ class ApiServiceDio {
   // ============================================
   
   /// Fetch all services (auto-select local or online based on mode)
-  Future<List<ServiceModel>> getServices() async {
+  Future<List<ServiceModel>> getService() async {
     try {
       return mode == 'local' 
           ? await _getServicesFromLocal() 
@@ -165,8 +165,8 @@ class ApiServiceDio {
   /// Fetch services from online MockAPI using Dio
   Future<List<ServiceModel>> _getServicesFromAPI() async {
     try {
-      // STEP 1: Send HTTP GET Request using Dio
-      final response = await _dio.get('/services');
+      // STEP 1: Send HTTP GET Request using Dio (CHANGED: /services → /service)
+      final response = await _dio.get('/service');
 
       // STEP 2: Check status code
       if (response.statusCode == 200) {
@@ -219,10 +219,10 @@ class ApiServiceDio {
         );
         
       } else {
-        // Online mode: Direct API call with Dio
+        // Online mode: Direct API call with Dio (CHANGED: /services → /service)
         _logInfo('Fetching service ID: $id from API');
         
-        final response = await _dio.get('/services/$id');
+        final response = await _dio.get('/service/$id');
 
         if (response.statusCode == 200) {
           _logSuccess('Service found');
@@ -262,10 +262,10 @@ class ApiServiceDio {
       final jsonData = service.toJson();
       _logInfo('Body: $jsonData');
       
-      // STEP 2: Send POST request using Dio
+      // STEP 2: Send POST request using Dio (CHANGED: /services → /service)
       _logStep('Sending POST request');
       final response = await _dio.post(
-        '/services',
+        '/service',
         data: jsonData,
       );
 
@@ -308,9 +308,9 @@ class ApiServiceDio {
       // STEP 1: Convert to JSON
       final jsonData = service.toJson();
       
-      // STEP 2: Send PUT request using Dio
+      // STEP 2: Send PUT request using Dio (CHANGED: /services → /service)
       final response = await _dio.put(
-        '/services/$id',
+        '/service/$id',
         data: jsonData,
       );
 
@@ -350,8 +350,8 @@ class ApiServiceDio {
       _logSectionHeader('HTTP DELETE REQUEST (DIO)');
       _logInfo('Deleting service ID: $id');
       
-      // Send DELETE request using Dio
-      final response = await _dio.delete('/services/$id');
+      // Send DELETE request using Dio (CHANGED: /services → /service)
+      final response = await _dio.delete('/service/$id');
 
       // Check response
       if (response.statusCode == 200 || response.statusCode == 204) {
