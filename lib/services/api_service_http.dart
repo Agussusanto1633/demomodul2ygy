@@ -3,14 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import '../models/service_model.dart';
 
-/// 🌐 API Service - Ultra Clean Implementation
+/// 🌐 API Service - HTTP Implementation with Response Time
 /// 
 /// Supports both LOCAL JSON and ONLINE API modes with:
 /// - Local JSON file loading from assets
-/// - Online MockAPI integration
+/// - Online MockAPI integration with pure HTTP
 /// - Comprehensive logging
 /// - Full CRUD operations
 /// - Clean error handling
+/// - ⏱️ Response Time Tracking
 class ApiService {
   // ============================================
   // 📌 CONFIGURATION
@@ -36,6 +37,22 @@ class ApiService {
     'Accept': 'application/json',
   };
 
+  // ⏱️ Response Time tracking
+  int? _lastResponseTime; // in milliseconds
+
+  // ============================================
+  // ⏱️ RESPONSE TIME METHODS
+  // ============================================
+  
+  /// Get last response time in milliseconds
+  int? getLastResponseTime() => _lastResponseTime;
+  
+  /// Get last response time as formatted string
+  String getFormattedResponseTime() {
+    if (_lastResponseTime == null) return 'N/A';
+    return '${_lastResponseTime}ms';
+  }
+
   // ============================================
   // 🔍 GET ALL SERVICES
   // ============================================
@@ -59,6 +76,9 @@ class ApiService {
   /// Load services from local JSON file in assets
   Future<List<ServiceModel>> _getServicesFromLocal() async {
     try {
+      // ⏱️ Start timing
+      final startTime = DateTime.now().millisecondsSinceEpoch;
+      
       _logSectionHeader('LOADING FROM LOCAL JSON');
       
       // STEP 1: Load JSON file from assets
@@ -77,7 +97,12 @@ class ApiService {
           .map((json) => ServiceModel.fromJson(json))
           .toList();
       
+      // ⏱️ Calculate elapsed time
+      final endTime = DateTime.now().millisecondsSinceEpoch;
+      _lastResponseTime = endTime - startTime;
+      
       _logSuccess('Successfully parsed ${services.length} services');
+      _logInfo('⏱️  Response Time: ${_lastResponseTime}ms');
       _logSectionFooter();
       
       return services;
@@ -95,7 +120,9 @@ class ApiService {
   /// Fetch services from online MockAPI
   Future<List<ServiceModel>> _getServicesFromAPI() async {
     try {
-      // ✅ FIX: Langsung pakai baseUrl tanpa tambahan '/services'
+      // ⏱️ Start timing
+      final startTime = DateTime.now().millisecondsSinceEpoch;
+      
       final url = '$baseUrl/service';
       
       _logSectionHeader('HTTP GET REQUEST');
@@ -108,6 +135,10 @@ class ApiService {
             headers: _headers,
           )
           .timeout(timeout);
+
+      // ⏱️ Calculate response time
+      final endTime = DateTime.now().millisecondsSinceEpoch;
+      _lastResponseTime = endTime - startTime;
 
       // STEP 2: Log response status
       _logResponse(response);
@@ -128,6 +159,7 @@ class ApiService {
             .toList();
         
         _logSuccess('Successfully parsed ${services.length} services');
+        _logInfo('⏱️  Response Time: ${_lastResponseTime}ms');
         _logSectionFooter();
         
         return services;
@@ -160,8 +192,10 @@ class ApiService {
         );
         
       } else {
+        // ⏱️ Start timing
+        final startTime = DateTime.now().millisecondsSinceEpoch;
+        
         // Online mode: Direct API call
-        // ✅ FIX: Langsung pakai baseUrl
         final url = '$baseUrl/service/$id';
         _logInfo('Fetching service ID: $id from API');
         
@@ -172,8 +206,13 @@ class ApiService {
             )
             .timeout(timeout);
 
+        // ⏱️ Calculate response time
+        final endTime = DateTime.now().millisecondsSinceEpoch;
+        _lastResponseTime = endTime - startTime;
+
         if (response.statusCode == 200) {
           _logSuccess('Service found');
+          _logInfo('⏱️  Response Time: ${_lastResponseTime}ms');
           return ServiceModel.fromJson(json.decode(response.body));
         } else {
           throw Exception('Service not found: ${response.statusCode}');
@@ -196,6 +235,9 @@ class ApiService {
     }
 
     try {
+      // ⏱️ Start timing
+      final startTime = DateTime.now().millisecondsSinceEpoch;
+      
       _logSectionHeader('HTTP POST REQUEST');
       
       // STEP 1: Convert to JSON
@@ -205,7 +247,6 @@ class ApiService {
       
       // STEP 2: Send POST request
       _logStep('Sending POST request');
-      // ✅ FIX: Langsung pakai baseUrl
       final response = await http
           .post(
             Uri.parse('$baseUrl/service'),
@@ -214,11 +255,16 @@ class ApiService {
           )
           .timeout(timeout);
 
+      // ⏱️ Calculate response time
+      final endTime = DateTime.now().millisecondsSinceEpoch;
+      _lastResponseTime = endTime - startTime;
+
       // STEP 3: Check response
       _logResponse(response);
       
       if (response.statusCode == 201) {
         _logSuccess('Service created successfully!');
+        _logInfo('⏱️  Response Time: ${_lastResponseTime}ms');
         _logSectionFooter();
         return ServiceModel.fromJson(json.decode(response.body));
       } else {
@@ -242,6 +288,9 @@ class ApiService {
     }
 
     try {
+      // ⏱️ Start timing
+      final startTime = DateTime.now().millisecondsSinceEpoch;
+      
       _logSectionHeader('HTTP PUT REQUEST');
       _logInfo('Updating service ID: $id');
       
@@ -249,7 +298,6 @@ class ApiService {
       final jsonBody = json.encode(service.toJson());
       
       // STEP 2: Send PUT request
-      // ✅ FIX: Langsung pakai baseUrl
       final response = await http
           .put(
             Uri.parse('$baseUrl/service/$id'),
@@ -258,11 +306,16 @@ class ApiService {
           )
           .timeout(timeout);
 
+      // ⏱️ Calculate response time
+      final endTime = DateTime.now().millisecondsSinceEpoch;
+      _lastResponseTime = endTime - startTime;
+
       // STEP 3: Check response
       _logResponse(response);
       
       if (response.statusCode == 200) {
         _logSuccess('Service updated successfully!');
+        _logInfo('⏱️  Response Time: ${_lastResponseTime}ms');
         _logSectionFooter();
         return ServiceModel.fromJson(json.decode(response.body));
       } else {
@@ -286,11 +339,13 @@ class ApiService {
     }
 
     try {
+      // ⏱️ Start timing
+      final startTime = DateTime.now().millisecondsSinceEpoch;
+      
       _logSectionHeader('HTTP DELETE REQUEST');
       _logInfo('Deleting service ID: $id');
       
       // Send DELETE request
-      // ✅ FIX: Langsung pakai baseUrl
       final response = await http
           .delete(
             Uri.parse('$baseUrl/service/$id'),
@@ -298,11 +353,16 @@ class ApiService {
           )
           .timeout(timeout);
 
+      // ⏱️ Calculate response time
+      final endTime = DateTime.now().millisecondsSinceEpoch;
+      _lastResponseTime = endTime - startTime;
+
       // Check response
       _logResponse(response);
       
       if (response.statusCode == 200 || response.statusCode == 204) {
         _logSuccess('Service deleted successfully!');
+        _logInfo('⏱️  Response Time: ${_lastResponseTime}ms');
         _logSectionFooter();
       } else {
         throw Exception('Failed to delete service: ${response.statusCode}');

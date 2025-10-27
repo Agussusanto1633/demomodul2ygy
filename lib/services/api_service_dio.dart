@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:dio/dio.dart';
 import '../models/service_model.dart';
 
-/// 🌐 API Service - Dio Implementation
+/// 🌐 API Service - Dio Implementation with Response Time
 /// 
 /// Supports both LOCAL JSON and ONLINE API modes with:
 /// - Local JSON file loading from assets
@@ -11,6 +11,7 @@ import '../models/service_model.dart';
 /// - Comprehensive logging with interceptors
 /// - Full CRUD operations
 /// - Advanced error handling
+/// - ⏱️ Response Time Tracking
 class ApiServiceDio {
   // ============================================
   // 📌 CONFIGURATION
@@ -32,6 +33,9 @@ class ApiServiceDio {
   
   /// Dio instance (singleton pattern)
   late final Dio _dio;
+  
+  // ⏱️ Response Time tracking
+  int? _lastResponseTime; // in milliseconds
   
   // Singleton pattern
   static final ApiServiceDio _instance = ApiServiceDio._internal();
@@ -58,18 +62,21 @@ class ApiServiceDio {
       ),
     );
     
-    // Add interceptor for logging
+    // Add interceptor for logging and response time tracking
     _dio.interceptors.add(_createLoggingInterceptor());
   }
 
   // ============================================
-  // 📊 LOGGING INTERCEPTOR
+  // 📊 LOGGING INTERCEPTOR WITH RESPONSE TIME
   // ============================================
   
   /// Create logging interceptor for automatic request/response logging
   Interceptor _createLoggingInterceptor() {
     return InterceptorsWrapper(
       onRequest: (options, handler) {
+        // ⏱️ Store request start time
+        options.extra['requestStartTime'] = DateTime.now().millisecondsSinceEpoch;
+        
         _logSectionHeader('🚀 HTTP ${options.method} REQUEST');
         _logInfo('URL: ${options.uri}');
         if (options.data != null) {
@@ -79,9 +86,23 @@ class ApiServiceDio {
         return handler.next(options);
       },
       onResponse: (response, handler) {
+        // ⏱️ Calculate response time
+        final requestStartTime = response.requestOptions.extra['requestStartTime'] as int?;
+        if (requestStartTime != null) {
+          final responseTime = DateTime.now().millisecondsSinceEpoch - requestStartTime;
+          _lastResponseTime = responseTime;
+          response.extra['responseTime'] = responseTime;
+        }
+        
         _logSectionHeader('✅ HTTP RESPONSE');
         _logInfo('Status: ${response.statusCode}');
         _logInfo('${_getStatusEmoji(response.statusCode ?? 0)} ${_getStatusMessage(response.statusCode ?? 0)}');
+        
+        // ⏱️ Log response time
+        if (_lastResponseTime != null) {
+          _logInfo('⏱️  Response Time: ${_lastResponseTime}ms');
+        }
+        
         if (response.data != null) {
           final dataStr = response.data.toString();
           if (dataStr.length < 200) {
@@ -94,8 +115,21 @@ class ApiServiceDio {
         return handler.next(response);
       },
       onError: (error, handler) {
+        // ⏱️ Calculate response time even for errors
+        final requestStartTime = error.requestOptions.extra['requestStartTime'] as int?;
+        if (requestStartTime != null) {
+          final responseTime = DateTime.now().millisecondsSinceEpoch - requestStartTime;
+          _lastResponseTime = responseTime;
+        }
+        
         _logSectionHeader('❌ HTTP ERROR');
         _logError('Request failed', error.message ?? 'Unknown error');
+        
+        // ⏱️ Log response time for errors
+        if (_lastResponseTime != null) {
+          _logInfo('⏱️  Response Time: ${_lastResponseTime}ms');
+        }
+        
         if (error.response != null) {
           _logInfo('Status: ${error.response?.statusCode}');
           _logInfo('Data: ${error.response?.data}');
@@ -104,6 +138,19 @@ class ApiServiceDio {
         return handler.next(error);
       },
     );
+  }
+
+  // ============================================
+  // ⏱️ GET RESPONSE TIME
+  // ============================================
+  
+  /// Get last response time in milliseconds
+  int? getLastResponseTime() => _lastResponseTime;
+  
+  /// Get last response time as formatted string
+  String getFormattedResponseTime() {
+    if (_lastResponseTime == null) return 'N/A';
+    return '${_lastResponseTime}ms';
   }
 
   // ============================================
@@ -129,6 +176,9 @@ class ApiServiceDio {
   /// Load services from local JSON file in assets
   Future<List<ServiceModel>> _getServicesFromLocal() async {
     try {
+      // ⏱️ Track local loading time
+      final startTime = DateTime.now().millisecondsSinceEpoch;
+      
       _logSectionHeader('LOADING FROM LOCAL JSON (DIO)');
       
       // STEP 1: Load JSON file from assets
@@ -147,7 +197,12 @@ class ApiServiceDio {
           .map((json) => ServiceModel.fromJson(json))
           .toList();
       
+      // ⏱️ Calculate local loading time
+      final endTime = DateTime.now().millisecondsSinceEpoch;
+      _lastResponseTime = endTime - startTime;
+      
       _logSuccess('Successfully parsed ${services.length} services');
+      _logInfo('⏱️  Response Time: ${_lastResponseTime}ms');
       _logSectionFooter();
       
       return services;
@@ -165,7 +220,7 @@ class ApiServiceDio {
   /// Fetch services from online MockAPI using Dio
   Future<List<ServiceModel>> _getServicesFromAPI() async {
     try {
-      // STEP 1: Send HTTP GET Request using Dio (CHANGED: /services → /service)
+      // STEP 1: Send HTTP GET Request using Dio
       final response = await _dio.get('/service');
 
       // STEP 2: Check status code
@@ -219,7 +274,7 @@ class ApiServiceDio {
         );
         
       } else {
-        // Online mode: Direct API call with Dio (CHANGED: /services → /service)
+        // Online mode: Direct API call with Dio
         _logInfo('Fetching service ID: $id from API');
         
         final response = await _dio.get('/service/$id');
@@ -262,7 +317,7 @@ class ApiServiceDio {
       final jsonData = service.toJson();
       _logInfo('Body: $jsonData');
       
-      // STEP 2: Send POST request using Dio (CHANGED: /services → /service)
+      // STEP 2: Send POST request using Dio
       _logStep('Sending POST request');
       final response = await _dio.post(
         '/service',
@@ -308,7 +363,7 @@ class ApiServiceDio {
       // STEP 1: Convert to JSON
       final jsonData = service.toJson();
       
-      // STEP 2: Send PUT request using Dio (CHANGED: /services → /service)
+      // STEP 2: Send PUT request using Dio
       final response = await _dio.put(
         '/service/$id',
         data: jsonData,
@@ -350,7 +405,7 @@ class ApiServiceDio {
       _logSectionHeader('HTTP DELETE REQUEST (DIO)');
       _logInfo('Deleting service ID: $id');
       
-      // Send DELETE request using Dio (CHANGED: /services → /service)
+      // Send DELETE request using Dio
       final response = await _dio.delete('/service/$id');
 
       // Check response
