@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 // Controllers
 import 'controllers/service_controller.dart';
+import 'controllers/weather_controller.dart';
 
 // Views
 import 'views/login_page.dart';
@@ -11,6 +12,7 @@ import 'views/repair_service_page.dart';
 import 'views/crud_test_page.dart';
 import 'views/orders_page.dart';
 import 'views/profile_page.dart';
+import 'views/async_experiment_page.dart';
 
 void main() {
   // Print app start
@@ -18,6 +20,7 @@ void main() {
   
   // Initialize Controllers
   Get.put(ServiceController());
+  Get.put(WeatherController());
   
   runApp(const MyApp());
 }
@@ -61,17 +64,22 @@ class MyApp extends StatelessWidget {
           page: () => const OrdersPage(),
           transition: Transition.fade,
         ),
-  GetPage(
-    name: '/profile',
-    page: () => const ProfilePage(),
-    transition: Transition.zoom,
-  ),
-  GetPage(
-    name: '/settings',
-    page: () => const SettingsPage(),
-    transition: Transition.cupertino,
-  ),
-],
+        GetPage(
+          name: '/profile',
+          page: () => const ProfilePage(),
+          transition: Transition.zoom,
+        ),
+        GetPage(
+          name: '/settings',
+          page: () => const SettingsPage(),
+          transition: Transition.cupertino,
+        ),
+        GetPage(
+          name: '/async-experiment',
+          page: () => const AsyncExperimentPage(),
+          transition: Transition.rightToLeft,
+        ),
+      ],
       
       // Default transition
       defaultTransition: Transition.cupertino,

@@ -556,6 +556,16 @@ class _RepairServicePageState extends State<RepairServicePage>
                   },
                 ),
                 
+                // Async Experiment Button - 🧪 NEW!
+                _buildNavItem(
+                  icon: Icons.science,
+                  label: 'Async Test',
+                  isActive: false,
+                  onTap: () {
+                    Get.toNamed('/async-experiment');
+                  },
+                ),
+                
                 // Settings Button - ✅ SUDAH DIPERBAIKI!
                 _buildNavItem(
                   icon: Icons.settings,
