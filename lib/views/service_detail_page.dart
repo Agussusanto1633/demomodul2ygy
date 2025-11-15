@@ -1,484 +1,217 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import '../models/service_model.dart';
 
+// ============================================
+// SERVICE DETAIL PAGE - VIEW ONLY
+// ============================================
 class ServiceDetailPage extends StatelessWidget {
-  final Map<String, dynamic> service;
-  final int heroTag;
+  final ServiceModel service;
 
   const ServiceDetailPage({
     super.key,
     required this.service,
-    required this.heroTag,
   });
-
-  // Helper methods untuk get data dari Map
-  Color _getColor() {
-    return service['iconColor'] ?? Colors.blue;
-  }
-
-  Color _getBackgroundColor() {
-    return service['color'] ?? Colors.blue.shade50;
-  }
-
-  IconData _getIcon() {
-    return service['icon'] ?? Icons.build;
-  }
 
   @override
   Widget build(BuildContext context) {
-    final orientation = MediaQuery.of(context).orientation;
-    final isLandscape = orientation == Orientation.landscape;
-
     return Scaffold(
-      backgroundColor: _getColor(),
-      body: SafeArea(
-        child: isLandscape
-            ? _buildLandscapeLayout(context)
-            : _buildPortraitLayout(context),
+      appBar: AppBar(
+        title: const Text('Detail Layanan'),
+        backgroundColor: service.getColor(),
       ),
-    );
-  }
-
-  // ============================================
-  // PORTRAIT LAYOUT
-  // ============================================
-  Widget _buildPortraitLayout(BuildContext context) {
-    return Column(
-      children: [
-        // Header
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Get.back(),
-              ),
-              const Spacer(),
-              const Text(
-                'Detail Layanan',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Header with gradient
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    service.getColor(),
+                    service.getColor().withOpacity(0.7),
+                  ],
                 ),
               ),
-              const Spacer(),
-              const SizedBox(width: 48),
-            ],
-          ),
-        ),
-        const SizedBox(height: 10),
-
-        // Hero Icon
-        Hero(
-          tag: 'service-$heroTag',
-          child: Container(
-            width: 150,
-            height: 150,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Column(
+                    children: [
+                      // Icon
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.3),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          service.getIcon(),
+                          size: 80,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      // Name
+                      Text(
+                        service.name,
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      // Price
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        child: Text(
+                          service.price,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
-            child: Icon(
-              _getIcon(),
-              size: 80,
-              color: _getColor(),
-            ),
-          ),
-        ),
-        const SizedBox(height: 30),
-
-        // Content
-        Expanded(
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30),
-                topRight: Radius.circular(30),
               ),
             ),
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(30),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Service Name
-                    Text(
-                      service['name'] ?? 'Service',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: _getColor(),
+
+            // Content - Hanya Deskripsi
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Description Card
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.description,
+                                color: service.getColor(),
+                              ),
+                              const SizedBox(width: 12),
+                              const Text(
+                                'Deskripsi Layanan',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            service.description,
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey.shade700,
+                              height: 1.6,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 10),
+                  ),
 
-                    // Price
-                    Container(
+                  const SizedBox(height: 24),
+
+                  // Tombol Pesan Layanan
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        // Aksi pesan layanan
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Memesan layanan: ${service.name}'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.shopping_cart, size: 24),
+                      label: const Text(
+                        'Pesan Layanan',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: service.getColor(),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 4,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Firestore Badge
+                  Center(
+                    child: Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: _getBackgroundColor(),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.orange.shade400,
+                            Colors.yellow.shade600,
+                          ],
+                        ),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Text(
-                        service['price'] ?? 'Rp 0',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
-                          color: _getColor(),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-
-                    // Description Section
-                    const Text(
-                      'Deskripsi Layanan',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      service['description'] ?? 'Tidak ada deskripsi',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black54,
-                        height: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-
-                    // Features Section
-                    const Text(
-                      'Keunggulan:',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildFeature(
-                      Icons.check_circle,
-                      'Garansi 30 hari',
-                      _getColor(),
-                    ),
-                    _buildFeature(
-                      Icons.check_circle,
-                      'Teknisi berpengalaman',
-                      _getColor(),
-                    ),
-                    _buildFeature(
-                      Icons.check_circle,
-                      'Harga terjangkau',
-                      _getColor(),
-                    ),
-                    _buildFeature(
-                      Icons.check_circle,
-                      'Pengerjaan cepat',
-                      _getColor(),
-                    ),
-                    const SizedBox(height: 30),
-
-                    // Order Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Get.snackbar(
-                            'Berhasil',
-                            'Memesan ${service['name']}...',
-                            backgroundColor: _getColor(),
-                            colorText: Colors.white,
-                            snackPosition: SnackPosition.BOTTOM,
-                            margin: const EdgeInsets.all(16),
-                            duration: const Duration(seconds: 2),
-                          );
-                          Future.delayed(
-                            const Duration(seconds: 2),
-                            () => Get.back(),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _getColor(),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.cloud, color: Colors.white, size: 16),
+                          SizedBox(width: 8),
+                          Text(
+                            'Data dari supabase',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          elevation: 5,
-                        ),
-                        child: const Text(
-                          'Pesan Sekarang',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ============================================
-  // LANDSCAPE LAYOUT
-  // ============================================
-  Widget _buildLandscapeLayout(BuildContext context) {
-    return Row(
-      children: [
-        // Left Side - Header & Hero
-        Container(
-          width: MediaQuery.of(context).size.width * 0.35,
-          color: _getColor(),
-          child: Column(
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      onPressed: () => Get.back(),
-                    ),
-                    const Expanded(
-                      child: Text(
-                        'Detail Layanan',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(width: 40),
-                  ],
-                ),
-              ),
-              const Spacer(),
-
-              // Hero Icon
-              Hero(
-                tag: 'service-$heroTag',
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
                   ),
-                  child: Icon(
-                    _getIcon(),
-                    size: 50,
-                    color: _getColor(),
-                  ),
-                ),
+                ],
               ),
-              const Spacer(),
-            ],
-          ),
+            ),
+          ],
         ),
-
-        // Right Side - Content
-        Expanded(
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(30),
-                bottomLeft: Radius.circular(30),
-              ),
-            ),
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Service Name
-                    Text(
-                      service['name'] ?? 'Service',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: _getColor(),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Price
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _getBackgroundColor(),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Text(
-                        service['price'] ?? 'Rp 0',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: _getColor(),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Description Section
-                    const Text(
-                      'Deskripsi Layanan',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      service['description'] ?? 'Tidak ada deskripsi',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.black54,
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Features Section
-                    const Text(
-                      'Keunggulan:',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildFeature(
-                      Icons.check_circle,
-                      'Garansi 30 hari',
-                      _getColor(),
-                    ),
-                    _buildFeature(
-                      Icons.check_circle,
-                      'Teknisi berpengalaman',
-                      _getColor(),
-                    ),
-                    _buildFeature(
-                      Icons.check_circle,
-                      'Harga terjangkau',
-                      _getColor(),
-                    ),
-                    _buildFeature(
-                      Icons.check_circle,
-                      'Pengerjaan cepat',
-                      _getColor(),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Order Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Get.snackbar(
-                            'Berhasil',
-                            'Memesan ${service['name']}...',
-                            backgroundColor: _getColor(),
-                            colorText: Colors.white,
-                            snackPosition: SnackPosition.BOTTOM,
-                            margin: const EdgeInsets.all(16),
-                            duration: const Duration(seconds: 2),
-                          );
-                          Future.delayed(
-                            const Duration(seconds: 2),
-                            () => Get.back(),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: _getColor(),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 5,
-                        ),
-                        child: const Text(
-                          'Pesan Sekarang',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ============================================
-  // HELPER WIDGET: Feature Item
-  // ============================================
-  Widget _buildFeature(IconData icon, String text, Color color) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 16),
-          const SizedBox(width: 8),
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 13,
-              color: Colors.black87,
-            ),
-          ),
-        ],
       ),
     );
   }

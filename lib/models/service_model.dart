@@ -1,71 +1,127 @@
 import 'package:flutter/material.dart';
 
+// ============================================
+// SERVICE MODEL - WITH SUPABASE SUPPORT
+// ============================================
 class ServiceModel {
   final String id;
-  final String title;
-  final String description;
+  final String name;
   final String price;
+  final String description;
   final String icon;
   final String color;
+  final String? colorHex;
+  final String? imageUrl;  // 🆕 NEW: URL gambar dari Supabase Storage
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   ServiceModel({
     required this.id,
-    required this.title,
-    required this.description,
+    required this.name,
     required this.price,
+    required this.description,
     required this.icon,
     required this.color,
+    this.colorHex,
+    this.imageUrl,  // 🆕 NEW
+    this.createdAt,
+    this.updatedAt,
   });
 
-  // Convert JSON to Object
+  // ========================================
+  // FROM JSON (Supabase)
+  // ========================================
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
     return ServiceModel(
       id: json['id']?.toString() ?? '0',
-      title: json['title'] ?? json['name'] ?? '',
-      description: json['description'] ?? json['body'] ?? '',
-      price: json['price'] ?? 'Rp 0',
-      icon: json['icon'] ?? 'build',
-      color: json['color'] ?? 'blue',
+      name: json['name']?.toString() ?? json['title']?.toString() ?? '',
+      price: json['price']?.toString() ?? 'Rp 0',
+      description: json['description']?.toString() ?? '',
+      icon: json['icon']?.toString() ?? 'build',
+      color: json['color']?.toString() ?? _hexToColorName(json['color_hex'] ?? '#2196F3'),
+      colorHex: json['color_hex']?.toString(),
+      imageUrl: json['image_url']?.toString(),  // 🆕 NEW: Parse image URL
+      createdAt: _parseTimestamp(json['created_at']),
+      updatedAt: _parseTimestamp(json['updated_at']),
     );
   }
 
-  // Convert Object to JSON
+  // ========================================
+  // TO JSON (Supabase)
+  // ========================================
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'title': title,
-      'description': description,
+      'name': name,
       'price': price,
+      'description': description,
       'icon': icon,
       'color': color,
+      'color_hex': colorHex ?? _colorNameToHex(color),
+      'image_url': imageUrl,  // 🆕 NEW: Include image URL
+      // Don't include id in toJson (it's managed by database)
+      // created_at and updated_at will be set by database
     };
   }
 
-  // CopyWith method
+  // ========================================
+  // TO MAP FOR UPDATE (Supabase)
+  // ========================================
+  Map<String, dynamic> toUpdateMap() {
+    return {
+      'name': name,
+      'price': price,
+      'description': description,
+      'icon': icon,
+      'color': color,
+      'color_hex': colorHex ?? _colorNameToHex(color),
+      'image_url': imageUrl,  // 🆕 NEW: Update image URL
+      'updated_at': DateTime.now().toIso8601String(),
+    };
+  }
+
+  // ========================================
+  // COPY WITH
+  // ========================================
   ServiceModel copyWith({
     String? id,
-    String? title,
-    String? description,
+    String? name,
     String? price,
+    String? description,
     String? icon,
     String? color,
+    String? colorHex,
+    String? imageUrl,  // 🆕 NEW
+    DateTime? createdAt,
+    DateTime? updatedAt,
   }) {
     return ServiceModel(
       id: id ?? this.id,
-      title: title ?? this.title,
-      description: description ?? this.description,
+      name: name ?? this.name,
       price: price ?? this.price,
+      description: description ?? this.description,
       icon: icon ?? this.icon,
       color: color ?? this.color,
+      colorHex: colorHex ?? this.colorHex,
+      imageUrl: imageUrl ?? this.imageUrl,  // 🆕 NEW
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
-  // ============================================
-  // HELPER METHODS - Convert string to Color & IconData
-  // ============================================
-
-  /// Get Color from color string
+  // ========================================
+  // GET COLOR (Material Color)
+  // ========================================
   Color getColor() {
+    if (colorHex != null && colorHex!.isNotEmpty) {
+      try {
+        final hex = colorHex!.replaceAll('#', '');
+        return Color(int.parse('FF$hex', radix: 16));
+      } catch (e) {
+        // Fallback to color name
+      }
+    }
+
+    // Color name mapping
     switch (color.toLowerCase()) {
       case 'blue':
         return Colors.blue;
@@ -88,39 +144,13 @@ class ServiceModel {
       case 'cyan':
         return Colors.cyan;
       default:
-        return Colors.blue; // default color
+        return Colors.blue;
     }
   }
 
-  /// Get background Color (lighter shade)
-  Color getBackgroundColor() {
-    switch (color.toLowerCase()) {
-      case 'blue':
-        return Colors.blue.shade50;
-      case 'green':
-        return Colors.green.shade50;
-      case 'red':
-        return Colors.red.shade50;
-      case 'orange':
-        return Colors.orange.shade50;
-      case 'purple':
-        return Colors.purple.shade50;
-      case 'teal':
-        return Colors.teal.shade50;
-      case 'indigo':
-        return Colors.indigo.shade50;
-      case 'amber':
-        return Colors.amber.shade50;
-      case 'pink':
-        return Colors.pink.shade50;
-      case 'cyan':
-        return Colors.cyan.shade50;
-      default:
-        return Colors.blue.shade50;
-    }
-  }
-
-  /// Get IconData from icon string
+  // ========================================
+  // GET ICON (Material Icon)
+  // ========================================
   IconData getIcon() {
     switch (icon.toLowerCase()) {
       case 'format_paint':
@@ -139,16 +169,85 @@ class ServiceModel {
         return Icons.water_drop;
       case 'battery_charging_full':
         return Icons.battery_charging_full;
-      case 'construction':
-        return Icons.construction;
-      case 'car_repair':
-        return Icons.car_repair;
+      case 'speed':
+        return Icons.speed;
+      case 'settings':
+        return Icons.settings;
       default:
-        return Icons.build; // default icon
+        return Icons.build;
     }
   }
 
-  // Alias for compatibility
-  String get name => title;
-  String get body => description;
+  // ========================================
+  // HELPERS
+  // ========================================
+  static DateTime? _parseTimestamp(dynamic timestamp) {
+    if (timestamp == null) return null;
+
+    if (timestamp is String) {
+      return DateTime.tryParse(timestamp);
+    }
+
+    if (timestamp is DateTime) {
+      return timestamp;
+    }
+
+    return null;
+  }
+
+  static String _hexToColorName(String hex) {
+    hex = hex.replaceAll('#', '').toUpperCase();
+    
+    const Map<String, String> colorMap = {
+      '2196F3': 'blue',
+      '4CAF50': 'green',
+      'F44336': 'red',
+      'FF9800': 'orange',
+      '9C27B0': 'purple',
+      '009688': 'teal',
+      '3F51B5': 'indigo',
+      'FFC107': 'amber',
+      'E91E63': 'pink',
+      '00BCD4': 'cyan',
+    };
+
+    return colorMap[hex] ?? 'blue';
+  }
+
+  static String _colorNameToHex(String colorName) {
+    const Map<String, String> hexMap = {
+      'blue': '#2196F3',
+      'green': '#4CAF50',
+      'red': '#F44336',
+      'orange': '#FF9800',
+      'purple': '#9C27B0',
+      'teal': '#009688',
+      'indigo': '#3F51B5',
+      'amber': '#FFC107',
+      'pink': '#E91E63',
+      'cyan': '#00BCD4',
+    };
+
+    return hexMap[colorName.toLowerCase()] ?? '#2196F3';
+  }
+
+  // ========================================
+  // TO STRING
+  // ========================================
+  @override
+  String toString() {
+    return 'ServiceModel(id: $id, name: $name, price: $price)';
+  }
+
+  // ========================================
+  // EQUALITY
+  // ========================================
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ServiceModel && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
